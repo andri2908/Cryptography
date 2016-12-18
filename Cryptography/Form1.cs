@@ -11,6 +11,7 @@ using System.Security.Cryptography;
 using System.IO;
 using System.Management;
 
+
 namespace Cryptography
 {
     public partial class Form1 : Form
@@ -107,6 +108,62 @@ namespace Cryptography
                 return null;
             }
 
+        }
+
+        public byte[] RSAEncrypt(byte[] DataToEncrypt, bool DoOAEPPadding, RSACryptoServiceProvider rsaProvider)
+        {
+            try
+            {
+                byte[] encryptedData;
+                //RSA = GetKeyFromContainer("POS_CONTAINER");
+                //Create a new instance of RSACryptoServiceProvider.
+                //using (RSACryptoServiceProvider RSA = new RSACryptoServiceProvider())
+                {
+
+                    //Encrypt the passed byte array and specify OAEP padding.  
+                    //OAEP padding is only available on Microsoft Windows XP or
+                    //later.  
+                    encryptedData = rsaProvider.Encrypt(DataToEncrypt, DoOAEPPadding);
+                }
+                return encryptedData;
+            }
+            //Catch and display a CryptographicException  
+            //to the console.
+            catch (CryptographicException e)
+            {
+                Console.WriteLine(e.Message);
+
+                return null;
+            }
+        }
+
+        public byte[] RSADecrypt(byte[] DataToDecrypt, bool DoOAEPPadding, RSACryptoServiceProvider rsaProvider)
+        {
+            try
+                {
+                    byte[] decryptedData;
+                    //RSA = GetKeyFromContainer("POS_CONTAINER");
+                    //Create a new instance of RSACryptoServiceProvider.
+                    //using ()
+                    {
+                        //Import the RSA Key information. This needs
+                        //to include the private key information.
+
+                        //Decrypt the passed byte array and specify OAEP padding.  
+                        //OAEP padding is only available on Microsoft Windows XP or
+                        //later.  
+                        decryptedData = rsaProvider.Decrypt(DataToDecrypt, DoOAEPPadding);
+                    }
+                    return decryptedData;
+                }
+                //Catch and display a CryptographicException  
+                //to the console.
+                catch (CryptographicException e)
+                {
+                    Console.WriteLine(e.ToString());
+
+                    return null;
+                }
         }
 
         public byte[] RSADecrypt(byte[] DataToDecrypt, RSAParameters RSAKeyInfo, bool DoOAEPPadding)
@@ -246,6 +303,172 @@ namespace Cryptography
         private void button3_Click(object sender, EventArgs e)
         {
             DeleteKeyFromContainer(containerName.Text);
+        }
+
+        private void generateNewKeyPair()
+        {
+            CspParameters cspParams = null;
+            RSACryptoServiceProvider rsaProvider = null;
+            StreamWriter publicKeyFile = null;
+            StreamWriter privateKeyFile = null;
+            string publicKey = "";
+            string privateKey = "";
+
+            try
+            {
+                // Create a new key pair on target CSP
+                cspParams = new CspParameters();
+                cspParams.ProviderType = 1; // PROV_RSA_FULL
+                //cspParams.ProviderName; // CSP name
+                cspParams.Flags = CspProviderFlags.UseArchivableKey;
+                cspParams.KeyNumber = (int)KeyNumber.Exchange;
+                rsaProvider = new RSACryptoServiceProvider(cspParams);
+
+                // Export public key
+                publicKey = rsaProvider.ToXmlString(false);
+
+                // Write public key to file
+                publicKeyFile = File.CreateText("publicKey.xml");
+                publicKeyFile.Write(publicKey);
+
+                // Export private/public key pair
+                privateKey = rsaProvider.ToXmlString(true);
+
+                // Write private/public key pair to file
+                privateKeyFile = File.CreateText("privateKey.xml");
+                privateKeyFile.Write(privateKey);
+            }
+            catch (Exception ex)
+            {
+                // Any errors? Show them
+                //Console.WriteLine("Exception generating a new key pair!More info:");
+                //Console.WriteLine(ex.Message);
+                MessageBox.Show(ex.Message);
+            }
+            finally
+            {
+                // Do some clean up if needed
+                if (publicKeyFile != null)
+                {
+                    publicKeyFile.Close();
+                }
+                if (privateKeyFile != null)
+                {
+                    privateKeyFile.Close();
+                }
+            }
+        }
+
+        private void createVolumeLicenseFile(string filePath)
+        {
+            string textToEncrypt = "";
+            byte[] dataToEncrypt;
+            byte[] encryptedData;
+            RSACryptoServiceProvider rsaProvider = null;
+            StreamReader publicKeyFile = null;
+            string publicKeyText = "";
+            CspParameters cspParams = null;
+
+            if (generateKeyPair.Checked)
+            {
+                generateNewKeyPair();
+            }
+
+            // Import public key
+            // Select target CSP
+            cspParams = new CspParameters();
+            cspParams.ProviderType = 1; // PROV_RSA_FULL
+
+            rsaProvider = new RSACryptoServiceProvider(cspParams);
+
+            // Read public key from file
+            publicKeyFile = File.OpenText("publicKey.xml");
+            publicKeyText = publicKeyFile.ReadToEnd();
+
+            // Import public key
+            rsaProvider.FromXmlString(publicKeyText);
+            
+            // GET ORIGINAL STRING, USE '#' FOR DELIMITER
+            textToEncrypt = keywordTextBox.Text + "#" + registeredNameTextBox.Text + "#" + registeredAddressTextBox.Text;
+            UnicodeEncoding ByteConverter = new UnicodeEncoding();
+            try
+            {
+                dataToEncrypt = ByteConverter.GetBytes(textToEncrypt);
+                encryptedData = RSAEncrypt(dataToEncrypt, false, rsaProvider);
+                File.WriteAllBytes(filePath, encryptedData);
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message);
+            }
+        }
+
+        private void loadVolumeLicenseFile(string filePath)
+        {
+            byte[] encryptedData;
+            byte[] decryptedData;
+            CspParameters cspParams = null;
+            RSACryptoServiceProvider rsaProvider = null;
+            StreamReader privateKeyFile = null;
+            string privateKeyText = "";
+            // Select target CSP
+            cspParams = new CspParameters();
+            cspParams.ProviderType = 1; // PROV_RSA_FULL
+
+            //cspParams.ProviderName; // CSP name
+            rsaProvider = new RSACryptoServiceProvider(cspParams);
+
+            // Read private/public key pair from file
+            privateKeyFile = File.OpenText("privateKey.xml");
+            privateKeyText = privateKeyFile.ReadToEnd();
+
+            // Import private/public key pair
+            rsaProvider.FromXmlString(privateKeyText);
+
+            UnicodeEncoding ByteConverter = new UnicodeEncoding();
+            try
+            {
+                encryptedData = File.ReadAllBytes(filePath);
+                decryptedData = RSADecrypt(encryptedData, false, rsaProvider);
+
+                string[] decryptedText = ByteConverter.GetString(decryptedData).Split('#') ;
+
+                decryptedNameTextBox.Text = decryptedText[1];
+                decryptedAddressTextBox.Text = decryptedText[2];
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message);
+            }
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            saveFileDialog1.FileName = "";
+            string filePath = "";// Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                filePath = saveFileDialog1.FileName;
+                //saveLicenseFile(originalString.Text, saveFileDialog1.FileName);
+                createVolumeLicenseFile(filePath);
+                MessageBox.Show("DONE");
+            }
+        }
+
+        private void tabPage2_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            openFileDialog1.FileName = "";
+
+            if (openFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                loadVolumeLicenseFile(openFileDialog1.FileName);
+                MessageBox.Show("DONE");
+            }
         }
     }
 }
