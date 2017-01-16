@@ -44,6 +44,7 @@
             this.containerName = new System.Windows.Forms.TextBox();
             this.button4 = new System.Windows.Forms.Button();
             this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.generateKeyPair = new System.Windows.Forms.CheckBox();
             this.label9 = new System.Windows.Forms.Label();
             this.keywordTextBox = new System.Windows.Forms.TextBox();
             this.button6 = new System.Windows.Forms.Button();
@@ -60,7 +61,6 @@
             this.publicKeyTextBox = new System.Windows.Forms.TextBox();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
-            this.generateKeyPair = new System.Windows.Forms.CheckBox();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -246,6 +246,19 @@
             this.tabPage2.Text = "VOLUME LICENSE";
             this.tabPage2.Click += new System.EventHandler(this.tabPage2_Click);
             // 
+            // generateKeyPair
+            // 
+            this.generateKeyPair.AutoSize = true;
+            this.generateKeyPair.Checked = true;
+            this.generateKeyPair.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.generateKeyPair.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.generateKeyPair.Location = new System.Drawing.Point(39, 222);
+            this.generateKeyPair.Name = "generateKeyPair";
+            this.generateKeyPair.Size = new System.Drawing.Size(190, 24);
+            this.generateKeyPair.TabIndex = 47;
+            this.generateKeyPair.Text = "Generate new Key Pair";
+            this.generateKeyPair.UseVisualStyleBackColor = true;
+            // 
             // label9
             // 
             this.label9.AutoSize = true;
@@ -264,6 +277,7 @@
             this.keywordTextBox.Name = "keywordTextBox";
             this.keywordTextBox.Size = new System.Drawing.Size(381, 29);
             this.keywordTextBox.TabIndex = 45;
+            this.keywordTextBox.Text = "AlphaSoft";
             // 
             // button6
             // 
@@ -385,19 +399,6 @@
             // openFileDialog1
             // 
             this.openFileDialog1.FileName = "openFileDialog1";
-            // 
-            // generateKeyPair
-            // 
-            this.generateKeyPair.AutoSize = true;
-            this.generateKeyPair.Checked = true;
-            this.generateKeyPair.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.generateKeyPair.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.generateKeyPair.Location = new System.Drawing.Point(39, 222);
-            this.generateKeyPair.Name = "generateKeyPair";
-            this.generateKeyPair.Size = new System.Drawing.Size(190, 24);
-            this.generateKeyPair.TabIndex = 47;
-            this.generateKeyPair.Text = "Generate new Key Pair";
-            this.generateKeyPair.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 

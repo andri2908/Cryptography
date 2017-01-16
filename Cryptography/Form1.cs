@@ -395,7 +395,8 @@ namespace Cryptography
             {
                 dataToEncrypt = ByteConverter.GetBytes(textToEncrypt);
                 encryptedData = RSAEncrypt(dataToEncrypt, false, rsaProvider);
-                File.WriteAllBytes(filePath, encryptedData);
+                File.WriteAllBytes(filePath + "license.lic", encryptedData);
+                File.Copy("privateKey.xml", filePath + "privateKey.xml");
             }
             catch (Exception e)
             {
@@ -445,10 +446,16 @@ namespace Cryptography
         private void button5_Click(object sender, EventArgs e)
         {
             saveFileDialog1.FileName = "";
-            string filePath = "";// Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+            string filePath =  Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\AlphaSoft\\";
+
+            if (!Directory.Exists(filePath))
+            { 
+                Directory.CreateDirectory(filePath);
+            }
+
+            //if (saveFileDialog1.ShowDialog() == DialogResult.OK)
             {
-                filePath = saveFileDialog1.FileName;
+               // filePath = saveFileDialog1.FileName;
                 //saveLicenseFile(originalString.Text, saveFileDialog1.FileName);
                 createVolumeLicenseFile(filePath);
                 MessageBox.Show("DONE");
